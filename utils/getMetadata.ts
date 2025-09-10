@@ -1,9 +1,5 @@
 import jsmediatags from 'jsmediatags/dist/jsmediatags.min.js';
-
-interface AudioFileMetadata {
-  tags: any;
-  error: string;
-}
+import { AudioFileMetadata } from '@/types/AudioFileMetadata';
 
 export const getMetadata = async (audioFileBase64: string): Promise<AudioFileMetadata> => {
   const fileBuffer = Buffer.from(audioFileBase64, "base64");
