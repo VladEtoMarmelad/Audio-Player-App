@@ -1,6 +1,6 @@
 import * as FileSystem from 'expo-file-system';
 
-export const getAllTracks = async (): Promise<void> => {
+export const getAllTracks = async (): Promise<any> => {
   try {
     const documentDirectory = FileSystem.documentDirectory + "tracks"
     const directoryFilesTitles = await FileSystem.readDirectoryAsync(documentDirectory) 
@@ -11,6 +11,7 @@ export const getAllTracks = async (): Promise<void> => {
       })
     ) 
     console.log("directoryFiles:", directoryFiles)
+    return directoryFiles
   } catch (error) {
     console.error(error)
   }
