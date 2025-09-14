@@ -34,8 +34,7 @@ const styles = StyleSheet.create({
 
   button: {
     padding: 15,
-    borderRadius: 15,
-    marginTop: 15
+    borderRadius: 15
   },
   lightThemeButton: {
     backgroundColor: 'black',
@@ -65,6 +64,19 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%'
   },
+
+  modalView: {
+    marginTop: 'auto',
+    marginBottom: 50,
+    padding: 15,
+    alignItems: 'flex-start', 
+    alignSelf: 'center', 
+    width: '75%', 
+    borderRadius: 15,
+  },
+  lightThemeModalView: {
+    backgroundColor: 'lightgray'
+  }
 })
 
 export default styles;

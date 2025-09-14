@@ -17,7 +17,7 @@ export default function RootLayout() {
         }}
       />
       <Tabs.Screen
-        name="addTrack"
+        name="saveTrack"
         options={{href: null}}
       />
     </Tabs>

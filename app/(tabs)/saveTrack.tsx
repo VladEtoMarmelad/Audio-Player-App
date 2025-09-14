@@ -1,7 +1,7 @@
 import { TouchableOpacity, Text, View, Image, TextInput, Platform, ActivityIndicator } from 'react-native';
 import { BlurView } from "expo-blur";
 import { useState, useRef, useCallback } from 'react';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { pickAndReadAudioFile } from '@/utils/pickAndReadAudioFile';
 import { pickImage } from '@/utils/pickImage';
 import { ImageInfo } from '@/types/ImageInfo';
@@ -10,15 +10,24 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import globalStyles from '@/styles/GlobalStyles'
 
-const AddTrack = () => {
+const SaveTrack = () => {
   const [tags, setTags] = useState<any>(null);
   const [image, setImage] = useState<ImageInfo|null>(null)
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false)
+  const { defaultTrackInfo } = useLocalSearchParams(); //provided only when screen used to update file
   let audioUri = useRef<string>("");
 
   useFocusEffect(
     useCallback(() => {
+      if (defaultTrackInfo && typeof defaultTrackInfo==="string") {
+        const parsedDefaultTrackInfo = JSON.parse(defaultTrackInfo)
+        console.log("tags:", tags)
+        console.log("trackTags:", parsedDefaultTrackInfo.tags)
+        setTags(parsedDefaultTrackInfo.tags)
+        setImage(parsedDefaultTrackInfo.image)
+        audioUri.current = parsedDefaultTrackInfo.audioUri
+      }
       return () => {
         setTags(null)
         setImage(null)
@@ -26,7 +35,7 @@ const AddTrack = () => {
         setLoading(false)
         audioUri.current = ""
       }
-    }, [])
+    }, [defaultTrackInfo])
   )
 
   const pickAndReadAudioFileHandler = async () => {
@@ -55,6 +64,7 @@ const AddTrack = () => {
       imageUri: image ? image.imageUri : ""
     }
     saveTrackToFileSystem(trackObject)
+    //TODO: redirect after successful saving
   }
 
   return (
@@ -126,4 +136,4 @@ const AddTrack = () => {
   )
 }
 
-export default AddTrack;
+export default SaveTrack;
