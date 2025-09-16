@@ -1,6 +1,7 @@
-import { documentDirectory, getInfoAsync, makeDirectoryAsync, writeAsStringAsync } from 'expo-file-system'
+import { documentDirectory, getInfoAsync, makeDirectoryAsync, writeAsStringAsync } from 'expo-file-system/legacy'
 
 interface TrackObject {
+  //TODO: add id to every track. This will solve the the problem of creating new track if title was updated 
   title: string;
   album: string;
   artist: string;

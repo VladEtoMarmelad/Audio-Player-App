@@ -1,8 +1,8 @@
 import { getMetadata } from './getMetadata';
 import { Platform } from 'react-native';
 import { AudioFileMetadata } from '@/types/AudioFileMetadata';
+import { readAsStringAsync, EncodingType } from 'expo-file-system/legacy';
 import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
 
 export const pickAndReadAudioFile = async (): Promise<AudioFileMetadata> => {
   try {
@@ -31,8 +31,8 @@ export const pickAndReadAudioFile = async (): Promise<AudioFileMetadata> => {
       const fileUri = file.uri;
       console.log("File URI:", fileUri);
 
-      fileContentBase64 = await FileSystem.readAsStringAsync(fileUri, {
-        encoding: FileSystem.EncodingType.Base64,
+      fileContentBase64 = await readAsStringAsync(fileUri, {
+        encoding: EncodingType.Base64,
       });
     }
    

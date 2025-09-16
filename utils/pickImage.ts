@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import { ImageInfo } from '@/types/ImageInfo';
+import { readAsStringAsync, EncodingType } from 'expo-file-system/legacy';
 import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
 
 export const pickImage = async (): Promise<ImageInfo|null> => {
   try {
@@ -21,8 +21,8 @@ export const pickImage = async (): Promise<ImageInfo|null> => {
     } else {
       console.log("File URI:", image.uri);
     
-      imageBase64 = await FileSystem.readAsStringAsync(image.uri, {
-        encoding: FileSystem.EncodingType.Base64,
+      imageBase64 = await readAsStringAsync(image.uri, {
+        encoding: EncodingType.Base64,
       });
     }
 

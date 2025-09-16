@@ -20,6 +20,10 @@ export default function RootLayout() {
         name="saveTrack"
         options={{href: null}}
       />
+      <Tabs.Screen
+        name="[track]"
+        options={{href: null}}
+      />
     </Tabs>
   )
 }

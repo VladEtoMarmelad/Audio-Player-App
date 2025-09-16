@@ -9,6 +9,7 @@ export const getMetadata = async (audioFileBase64: string): Promise<AudioFileMet
       onSuccess: (tag: any) => {
         console.log("Теги успешно прочитаны:", JSON.stringify(tag, null, 2));
         resolve({
+          fileUri: "",
           tags: tag.tags,
           error: ""
         })
@@ -16,6 +17,7 @@ export const getMetadata = async (audioFileBase64: string): Promise<AudioFileMet
       onError: (error: any) => {
         console.log("Ошибка чтения тегов:", error);
         resolve({
+          fileUri: "",
           tags: null,
           error: `Ошибка: ${error.type} - ${error.info}`
         })

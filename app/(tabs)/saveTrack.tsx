@@ -1,11 +1,12 @@
 import { TouchableOpacity, Text, View, Image, TextInput, Platform, ActivityIndicator } from 'react-native';
 import { BlurView } from "expo-blur";
 import { useState, useRef, useCallback } from 'react';
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { pickAndReadAudioFile } from '@/utils/pickAndReadAudioFile';
 import { pickImage } from '@/utils/pickImage';
 import { ImageInfo } from '@/types/ImageInfo';
 import { saveTrackToFileSystem } from '@/utils/saveTrackToFileSystem';
+import { readAsStringAsync, EncodingType } from 'expo-file-system/legacy';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import globalStyles from '@/styles/GlobalStyles'
@@ -16,18 +17,24 @@ const SaveTrack = () => {
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false)
   const { defaultTrackInfo } = useLocalSearchParams(); //provided only when screen used to update file
+  const router = useRouter();
   let audioUri = useRef<string>("");
 
   useFocusEffect(
     useCallback(() => {
-      if (defaultTrackInfo && typeof defaultTrackInfo==="string") {
-        const parsedDefaultTrackInfo = JSON.parse(defaultTrackInfo)
-        console.log("tags:", tags)
-        console.log("trackTags:", parsedDefaultTrackInfo.tags)
-        setTags(parsedDefaultTrackInfo.tags)
-        setImage(parsedDefaultTrackInfo.image)
-        audioUri.current = parsedDefaultTrackInfo.audioUri
+      const getAndUseTrackInfo = async (): Promise<void> => {
+        if (defaultTrackInfo && typeof defaultTrackInfo==="string") {
+          const parsedDefaultTrackInfo = JSON.parse(defaultTrackInfo)
+          setTags(parsedDefaultTrackInfo.tags)
+          setImage({
+            imageUri: parsedDefaultTrackInfo.imageUri,
+            imageBase64: await readAsStringAsync(parsedDefaultTrackInfo.imageUri, {encoding: EncodingType.Base64})
+          })
+          audioUri.current = parsedDefaultTrackInfo.audioUri
+        }
       }
+      getAndUseTrackInfo()
+
       return () => {
         setTags(null)
         setImage(null)
@@ -54,7 +61,7 @@ const SaveTrack = () => {
     setLoading(false)
   }
 
-  const saveTrackToFileSystemHandler = () => {
+  const saveTrackToFileSystemHandler = async () => {
     const trackObject = {
       title: tags.title,
       album: tags.album,
@@ -63,8 +70,15 @@ const SaveTrack = () => {
       audioUri: audioUri.current,
       imageUri: image ? image.imageUri : ""
     }
-    saveTrackToFileSystem(trackObject)
-    //TODO: redirect after successful saving
+    await saveTrackToFileSystem(trackObject)
+    router.push("/")
+  }
+
+  const setTagsField = (fieldName: string, fieldValue: any): void => {
+    setTags((prevTags: any) => ({
+      ...prevTags,
+      [fieldName]: fieldValue
+    }))
   }
 
   return (
@@ -112,16 +126,19 @@ const SaveTrack = () => {
             <TextInput 
               placeholder="Название..."
               value={tags.title}
+              onChangeText={(e) => setTagsField("title", e)}
               style={[globalStyles.input, globalStyles.lightThemeInput]}
             />
             <TextInput 
               placeholder="Исполнитель..."
               value={tags.artist}
+              onChangeText={(e) => setTagsField("artist", e)}
               style={[globalStyles.input, globalStyles.lightThemeInput]}
             />
             <TextInput 
               placeholder="Альбом..."
               value={tags.album}
+              onChangeText={(e) => setTagsField("album", e)}
               style={[globalStyles.input, globalStyles.lightThemeInput]}
             />
             

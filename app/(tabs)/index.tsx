@@ -2,8 +2,8 @@ import { Text, View, FlatList, Image, Modal, TouchableOpacity } from 'react-nati
 import { Buffer } from 'buffer';
 import { getAllTracks } from '@/utils/getAllTracks';
 import { deleteTrackFromFileSystem } from '@/utils/deleteTrack';
-import { Link, useRouter } from 'expo-router';
-import { useState, useEffect } from 'react';
+import { Link, useFocusEffect, useRouter } from 'expo-router';
+import { useState, useCallback } from 'react';
 import Entypo from '@expo/vector-icons/Entypo';
 import globalStyles from '@/styles/GlobalStyles'
 
@@ -16,13 +16,15 @@ export default function Index() {
   const [selectedTrack, setSelectedTrack] = useState<string>("")
   const router = useRouter()
 
-  useEffect(() => {
-    const getAndUseTracks = async (): Promise<void> => {
-      let result = await getAllTracks(true)
-      setTracks(result)
-    }
-    getAndUseTracks()
-  }, [])
+  useFocusEffect(
+    useCallback(() => {
+      const getAndUseTracks = async (): Promise<void> => {
+        let result = await getAllTracks(true)
+        setTracks(result)
+      }
+      getAndUseTracks()
+    }, [])
+  )
 
   const deleteTrackHandler = (): void => {
     deleteTrackFromFileSystem(selectedTrack)
@@ -31,10 +33,9 @@ export default function Index() {
   }
 
   const redirectToTrackUpdateScreen = async (): Promise<void> => {
-    console.log("selectedTrack:", selectedTrack)
     const track = tracks.find((track: any) => track.title===selectedTrack)
-    console.log("index screen track title:", track.title)
 
+    setShowModal(false)
     setSelectedTrack("")
 
     router.push({
@@ -45,10 +46,7 @@ export default function Index() {
           artist: track.artist,
           album: track.album
         },
-        image: {
-          imageUri: track.imageUri,
-          imageBase64: track.image //TODO: not give imageBase64 but only imageUri and getting image from FS in saveTrack screen
-        },
+        imageUri: track.imageUri, 
         audioUri: track.audioUri
       })}
     })
@@ -69,32 +67,41 @@ export default function Index() {
       <FlatList 
         data={tracks}
         renderItem={({item: track, index}) => 
-          <View key={index} style={{flexDirection: 'row', marginTop: 15, alignItems: 'center', width: '100%'}}>
-            {track.image!=="" && 
-              <Image
-                source={{uri: `data:image/png;base64,${track.image}`}}
-                style={{width: 50, height: 50, borderRadius: 10}}
-              />
-            }
-            <View style={{marginLeft: 10}}>
-              <Text>{track.title}</Text>
-              <Text style={{color: 'gray'}}>{track.artistAndAlbum}</Text>
-            </View>
+          <Link 
+            href={{
+              pathname: "/[track]",
+              params: {track: track.title}
+            }}
+            key={index} 
+            style={{marginTop: 15}}
+          >
+            <View style={{flexDirection: 'row', alignItems: 'center', width: '100%'}}>
+              {track.image!=="" && 
+                <Image
+                  source={{uri: `data:image/png;base64,${track.image}`}}
+                  style={{width: 50, height: 50, borderRadius: 10}}
+                />
+              }
+              <View style={{marginLeft: 10}}>
+                <Text>{track.title.slice(0, 40)}{track.title.length>40&&"..."}</Text>
+                <Text style={{color: 'gray'}}>{track.artistAndAlbum}</Text>
+              </View>
 
-            <TouchableOpacity 
-              onPress={() => {
-                setShowModal(true);
-                setSelectedTrack(track.title)
-              }}
-              style={{marginLeft: 'auto'}}
-            >
-              <Entypo 
-                name="dots-three-vertical" 
-                size={18} 
-                color="gray"
-              />
-            </TouchableOpacity>
-          </View>
+              <TouchableOpacity 
+                onPress={() => {
+                  setShowModal(true);
+                  setSelectedTrack(track.title)
+                }}
+                style={{marginLeft: 'auto'}}
+              >
+                <Entypo 
+                  name="dots-three-vertical" 
+                  size={18} 
+                  color="gray"
+                />
+              </TouchableOpacity>
+            </View>
+          </Link>
         }
       />
 

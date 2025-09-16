@@ -1,4 +1,4 @@
-import { documentDirectory, deleteAsync } from 'expo-file-system';
+import { documentDirectory, deleteAsync } from 'expo-file-system/legacy';
 
 export const deleteTrackFromFileSystem = async (trackTitle: string): Promise<void> => {
   if (trackTitle!=="") { //verifying to not delete whole directory
