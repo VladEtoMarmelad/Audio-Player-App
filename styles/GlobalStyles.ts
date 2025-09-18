@@ -68,7 +68,6 @@ const styles = StyleSheet.create({
   modalView: {
     marginTop: 'auto',
     marginBottom: 50,
-    padding: 15,
     alignItems: 'flex-start', 
     alignSelf: 'center', 
     width: '75%', 

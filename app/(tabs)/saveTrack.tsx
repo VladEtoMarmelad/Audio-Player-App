@@ -63,6 +63,7 @@ const SaveTrack = () => {
 
   const saveTrackToFileSystemHandler = async () => {
     const trackObject = {
+      id: tags.id,
       title: tags.title,
       album: tags.album,
       artist: tags.artist,

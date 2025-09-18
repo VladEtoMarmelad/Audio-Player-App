@@ -1,21 +1,22 @@
 import { View, Text, Image, ActivityIndicator } from "react-native";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
-import { getTrackByTitle } from "@/utils/getTrackByTitle";
+import { getTrackById } from "@/utils/getTrackById";
 import { Player } from "@/components/Player";
+import { Track } from "@/types/Track";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import globalStyles from '@/styles/GlobalStyles'
 
-const Track = () => {
-  const [track, setTrack] = useState<any>(null)
+const TrackScreen = () => {
+  const [track, setTrack] = useState<Track|null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const searchParams = useLocalSearchParams()
-  const trackTitle = Array.isArray(searchParams.track) ? searchParams.track[0] : searchParams.track
+  const trackId = Array.isArray(searchParams.trackId) ? searchParams.trackId[0] : searchParams.trackId
 
   useFocusEffect(
     useCallback(() => {
       const getAndUseTrack = async () => {
-        setTrack(await getTrackByTitle(trackTitle))
+        setTrack(await getTrackById(trackId))
         setLoading(false)
       }
       getAndUseTrack()
@@ -24,10 +25,10 @@ const Track = () => {
         setTrack(null)
         setLoading(true)
       }
-    }, [trackTitle])
+    }, [trackId])
   )
 
-  if (loading) return (
+  if (loading || !track) return (
     <View style={[globalStyles.blurContainer, {flex: 1, alignSelf: 'center', justifyContent: 'center'}]}>
       <ActivityIndicator size={36}/>
     </View>
@@ -52,9 +53,9 @@ const Track = () => {
       <Text>{track.title}</Text>
       <Text>{track.artist}</Text>
 
-      <Player audioBase64={track.audio}/>
+      <Player audioBase64={track.audio ?? ""} />
     </View>
   )
 }
 
-export default Track;
+export default TrackScreen;

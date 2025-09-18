@@ -3,25 +3,25 @@ import { documentDirectory, readDirectoryAsync, readAsStringAsync, EncodingType 
 export const getAllTracks = async (getImage: boolean = false): Promise<any> => {
   try {
     const tracksDirectory = documentDirectory + "tracks"
-    const tracksTitles = await readDirectoryAsync(tracksDirectory) 
+    const tracksIDs = await readDirectoryAsync(tracksDirectory) 
     const tracks = await Promise.all(
-      tracksTitles.map(async (fileTitle: string) => {
-        let file: any = await readAsStringAsync(tracksDirectory + `/${fileTitle}`)
-        file = JSON.parse(file)
-        console.log("file:", file)
+      tracksIDs.map(async (trackID: string) => {
+        let track: any = await readAsStringAsync(tracksDirectory + `/${trackID}`)
+        track = JSON.parse(track)
+        console.log("track:", track)
 
-        let artistAndAlbum: string = `${file.artist} | ${file.album}`
+        let artistAndAlbum: string = `${track.artist} | ${track.album}`
         if (artistAndAlbum.length>=40) {
           artistAndAlbum = `${artistAndAlbum.slice(0, 40)}...`
         }
-        file.artistAndAlbum = artistAndAlbum
+        track.artistAndAlbum = artistAndAlbum
 
-        if (getImage && file.imageUri!=="") {
-          const image = await readAsStringAsync(file.imageUri, {encoding: EncodingType.Base64})
-          file.image = image
+        if (getImage && track.imageUri!=="") {
+          const image = await readAsStringAsync(track.imageUri, {encoding: EncodingType.Base64})
+          track.image = image
         }
 
-        return file
+        return track
       })
     ) 
 

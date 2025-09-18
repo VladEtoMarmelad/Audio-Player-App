@@ -1,19 +1,16 @@
 import { documentDirectory, getInfoAsync, makeDirectoryAsync, writeAsStringAsync } from 'expo-file-system/legacy'
-
-interface TrackObject {
-  //TODO: add id to every track. This will solve the the problem of creating new track if title was updated 
-  title: string;
-  album: string;
-  artist: string;
-
-  audioUri: string;
-  imageUri: string;
-}
+import { Track } from '@/types/Track';
+import uuid from 'react-native-uuid';
 
 // this function can be used for both posting file to file system and updting file
-export const saveTrackToFileSystem = async (trackObject: TrackObject): Promise<void> => {
+export const saveTrackToFileSystem = async (trackObject: Track): Promise<void> => {
   const tracksDirectory = documentDirectory + "tracks"
-  const trackDirectory = tracksDirectory + `/${trackObject.title}`
+
+  if (!trackObject.id) { // if function used for adding track
+    trackObject.id=uuid.v4();
+  }
+
+  const trackDirectory = tracksDirectory + `/${trackObject.id}`
   try {
     const dirInfo = await getInfoAsync(tracksDirectory);
     console.log("dirInfo:", dirInfo)

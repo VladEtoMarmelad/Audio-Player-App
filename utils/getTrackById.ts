@@ -1,8 +1,8 @@
 import { documentDirectory, readAsStringAsync, EncodingType } from "expo-file-system/legacy";
 
-export const getTrackByTitle = async (trackTitle: string): Promise<any> => {
+export const getTrackById = async (trackId: string): Promise<any> => {
   const tracksDirectory = documentDirectory + "tracks"
-  const trackDirectory = tracksDirectory + `/${trackTitle}`
+  const trackDirectory = tracksDirectory + `/${trackId}`
 
   try {
     let track: any = await readAsStringAsync(trackDirectory)

@@ -4,16 +4,17 @@ import { getAllTracks } from '@/utils/getAllTracks';
 import { deleteTrackFromFileSystem } from '@/utils/deleteTrack';
 import { Link, useFocusEffect, useRouter } from 'expo-router';
 import { useState, useCallback } from 'react';
+import { Track } from '@/types/Track';
 import Entypo from '@expo/vector-icons/Entypo';
 import globalStyles from '@/styles/GlobalStyles'
 
 global.Buffer = Buffer;
 
 export default function Index() {
-  const [tracks, setTracks] = useState<any>(null);
+  const [tracks, setTracks] = useState<Track[]|null>(null);
   const [showModal, setShowModal] = useState<boolean>(false)
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false)
-  const [selectedTrack, setSelectedTrack] = useState<string>("")
+  const [selectedTrack, setSelectedTrack] = useState<any>(null)
   const router = useRouter()
 
   useFocusEffect(
@@ -27,27 +28,29 @@ export default function Index() {
   )
 
   const deleteTrackHandler = (): void => {
-    deleteTrackFromFileSystem(selectedTrack)
-    setTracks(tracks.filter((track: any) => track.title!==selectedTrack))
+    deleteTrackFromFileSystem(selectedTrack.id)
+    //setTracks(tracks.filter((track: any) => track.title!==selectedTrack.title))
+    setTracks((prevTracks: any) => prevTracks.filter((track: any) => track.title!==selectedTrack.title))
     setShowDeleteModal(false)
   }
 
   const redirectToTrackUpdateScreen = async (): Promise<void> => {
-    const track = tracks.find((track: any) => track.title===selectedTrack)
+    const track = tracks?.find((track: any) => track.title===selectedTrack.title)
 
     setShowModal(false)
-    setSelectedTrack("")
+    setSelectedTrack(null)
 
     router.push({
       pathname: "/saveTrack", 
       params: {defaultTrackInfo: JSON.stringify({
         tags: {
-          title: track.title,
-          artist: track.artist,
-          album: track.album
+          id: track?.id,
+          title: track?.title,
+          artist: track?.artist,
+          album: track?.album
         },
-        imageUri: track.imageUri, 
-        audioUri: track.audioUri
+        imageUri: track?.imageUri, 
+        audioUri: track?.audioUri
       })}
     })
   }
@@ -66,13 +69,13 @@ export default function Index() {
       
       <FlatList 
         data={tracks}
-        renderItem={({item: track, index}) => 
+        keyExtractor={track => track.id ? track.id : track.title}
+        renderItem={({item: track}) => 
           <Link 
             href={{
-              pathname: "/[track]",
-              params: {track: track.title}
+              pathname: "/[trackId]",
+              params: {trackId: track.id ?? track.title}
             }}
-            key={index} 
             style={{marginTop: 15}}
           >
             <View style={{flexDirection: 'row', alignItems: 'center', width: '100%'}}>
@@ -90,7 +93,10 @@ export default function Index() {
               <TouchableOpacity 
                 onPress={() => {
                   setShowModal(true);
-                  setSelectedTrack(track.title)
+                  setSelectedTrack({
+                    id: track.id,
+                    title: track.title
+                  })
                 }}
                 style={{marginLeft: 'auto'}}
               >
@@ -114,7 +120,7 @@ export default function Index() {
         <View style={[globalStyles.modalView, globalStyles.lightThemeModalView]}>
           <TouchableOpacity
             onPress={redirectToTrackUpdateScreen}
-            style={{width: '100%'}}
+            style={{width: '100%', borderTopLeftRadius: 15, borderTopRightRadius: 15, padding: 10, backgroundColor: 'darkgray'}}
           ><Text style={{fontSize: 16, fontWeight: 'bold'}}>Редактировать</Text></TouchableOpacity>
 
           <TouchableOpacity
@@ -122,7 +128,7 @@ export default function Index() {
               setShowDeleteModal(true);
               setShowModal(false)
             }}
-            style={{width: '100%'}}
+            style={{width: '100%', borderBottomLeftRadius: 15, borderBottomRightRadius: 15, padding: 10, backgroundColor: 'darkgray'}}
           ><Text style={{fontSize: 16, fontWeight: 'bold'}}>Удалить</Text></TouchableOpacity>
         </View>
       </Modal>
@@ -136,7 +142,7 @@ export default function Index() {
         <View style={[globalStyles.modalView, globalStyles.lightThemeModalView]}>
           <View style={{width: '100%'}}>
             <Text style={{fontSize: 18, fontWeight: 'bold', alignSelf: 'center'}}>Удалить</Text>
-            <Text style={{fontSize: 16, fontWeight: 'bold'}}>Удалить песню "{selectedTrack}"</Text>
+            <Text style={{fontSize: 16, fontWeight: 'bold'}}>Удалить песню "{selectedTrack?.title}"</Text>
           </View>
           <View style={{width: '100%', flexDirection: 'row', justifyContent: 'space-around'}}>
             <TouchableOpacity

@@ -21,7 +21,7 @@ export default function RootLayout() {
         options={{href: null}}
       />
       <Tabs.Screen
-        name="[track]"
+        name="[trackId]"
         options={{href: null}}
       />
     </Tabs>
