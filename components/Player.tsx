@@ -1,8 +1,9 @@
-import { View, TouchableOpacity } from "react-native"
+import { View, TouchableOpacity, Text } from "react-native"
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useState, useRef, useEffect } from "react";
 import { documentDirectory, readDirectoryAsync } from 'expo-file-system/legacy';
+import { secondsToTime } from "@/utils/secondsToTime";
 import Slider from "@react-native-community/slider";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -17,6 +18,7 @@ export const Player = ({audioBase64}: {audioBase64: string}) => {
   const router = useRouter()
   const searchParams = useLocalSearchParams()
   const trackId = Array.isArray(searchParams.trackId) ? searchParams.trackId[0] : searchParams.trackId
+  const initialAfterFinish: any = Array.isArray(searchParams.initialAfterFinish) ? searchParams.initialAfterFinish[0] : searchParams.initialAfterFinish
   let allTracksIDs = useRef<string[]>([trackId])
 
   useFocusEffect(
@@ -26,33 +28,60 @@ export const Player = ({audioBase64}: {audioBase64: string}) => {
         allTracksIDs.current = await readDirectoryAsync(tracksDirectory) 
       } 
       getAndUseAllTracksIDs()
+
+      setAfterFinish(initialAfterFinish ?? "repeat") //using afterFinish that was choosed in prev track
+      
       player.play()
-    }, [trackId])
+    }, [trackId, initialAfterFinish])
   )
   
+  const redirectToNextTrack = () => {
+    const getNextTrackId = (): string => {
+      const currentTrackIndex = allTracksIDs.current.indexOf(trackId)
+
+      if (currentTrackIndex===allTracksIDs.current.length-1) { // if last track 
+        return allTracksIDs.current[0] // first track
+      } else {
+        return allTracksIDs.current[currentTrackIndex+1] // next track
+      }
+    }
+
+    router.push({
+      pathname: "/[trackId]",
+      params: {
+        trackId: getNextTrackId(),
+        initialAfterFinish: afterFinish
+      }
+    })
+  }
+
+  const redirectToPreviousTrack = () => {
+    const getPreviousTrackId = (): string => {
+      const currentTrackIndex = allTracksIDs.current.indexOf(trackId)
+
+      if (currentTrackIndex===0) { // if first track 
+        return allTracksIDs.current[allTracksIDs.current.length-1] // last track
+      } else {
+        return allTracksIDs.current[currentTrackIndex-1] // prev track
+      }
+    }
+
+    router.push({
+      pathname: "/[trackId]",
+      params: {
+        trackId: getPreviousTrackId(),
+        initialAfterFinish: afterFinish
+      }
+    })
+  }
+
   useEffect(() => {
     if (playerStatus.didJustFinish) {
       if (afterFinish==="repeat") {
         player.seekTo(0)
       } else if (afterFinish==="nextTrack") {
-        console.log(`afterFinish==="nextTrack"`)
-        const getNextTracksId = (): string => {
-          const currentTrackIndex = allTracksIDs.current.indexOf(trackId)
-
-          if (currentTrackIndex===allTracksIDs.current.length-1) { // if last track 
-            return allTracksIDs.current[0] // first track
-          } else {
-            return allTracksIDs.current[currentTrackIndex+1] // next track
-          }
-        }
-        console.log("getNextTracksId():", getNextTracksId())
-
-        router.push({
-          pathname: "/[trackId]",
-          params: {trackId: getNextTracksId()}
-        })
+        redirectToNextTrack()
       } else {
-        console.log(`afterFinish==="random"`)
         const otherTracksIDs: string[] = allTracksIDs.current.filter((id: string) => id!==trackId) // ids of all tracks except current track
         const randomTrackId: string = otherTracksIDs[Math.floor(Math.random() * otherTracksIDs.length)]
         console.log("randomTrackId:", randomTrackId)
@@ -74,35 +103,60 @@ export const Player = ({audioBase64}: {audioBase64: string}) => {
     }
   }
 
+  console.log("playerStatus:", playerStatus)
+
   return (
     <View>
-      <Slider 
-        style={{width: 300, height: 50, borderRadius: 50}}
-        value={Math.trunc(playerStatus.currentTime)}
-        onValueChange={(e) => {
-          player.pause()
-          player.seekTo(e)
-          player.play()
-        }}
-        minimumValue={0}
-        maximumValue={playerStatus.duration}
-        step={1}
-        thumbTintColor="#bbbbbb"
-        minimumTrackTintColor="#bbbbbb"
-        maximumTrackTintColor="darkgray"
-      />
+      <View style={{width: '100%', marginTop: 15}}>
+        <Slider 
+          style={{flex: 1, width: 300, borderRadius: 50}}
+          value={Math.trunc(playerStatus.currentTime)}
+          onValueChange={(e) => {
+            player.pause()
+            player.seekTo(e)
+            player.play()
+          }}
+          minimumValue={0}
+          maximumValue={playerStatus.duration}
+          step={1}
+          thumbTintColor="#bbbbbb"
+          minimumTrackTintColor="#bbbbbb"
+          maximumTrackTintColor="darkgray"
+        />
+        <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, marginHorizontal: 15}}>
+          <Text style={{color: 'white'}}>{secondsToTime(Math.trunc(playerStatus.currentTime))}</Text>
+          <Text style={{color: 'white'}}>{secondsToTime(Math.trunc(playerStatus.duration))}</Text>
+        </View>
+      </View>
+      
+      <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+        <TouchableOpacity
+          onPress={redirectToPreviousTrack}
+          style={{alignSelf: 'center'}}
+        >
+          <MaterialIcons name="skip-previous" size={36} color={allTracksIDs.current.length>=0 ? "white" : "gray"} />
+        </TouchableOpacity>
 
-      {playerStatus.timeControlStatus === "playing" ?
+        {playerStatus.timeControlStatus === "playing" ?
+          <TouchableOpacity
+            onPress={() => player.pause()}
+            style={playerStyles.pauseButton}
+          ><FontAwesome6 name="pause" size={24} color="white" /></TouchableOpacity>
+          :
+          <TouchableOpacity
+            onPress={() => player.play()}
+            style={playerStyles.pauseButton}
+          ><FontAwesome6 name="play" size={24} color="white" /></TouchableOpacity>
+        }
+
         <TouchableOpacity
-          onPress={() => player.pause()}
-          style={playerStyles.pauseButton}
-        ><FontAwesome6 name="pause" size={24} color="black" /></TouchableOpacity>
-        :
-        <TouchableOpacity
-          onPress={() => player.play()}
-          style={playerStyles.pauseButton}
-        ><FontAwesome6 name="play" size={24} color="black" /></TouchableOpacity>
-      }
+          onPress={redirectToNextTrack}
+          style={{alignSelf: 'center'}}
+        >
+          <MaterialIcons name="skip-next" size={36} color={allTracksIDs.current.length>=0 ? "white" : "gray"} />
+        </TouchableOpacity>
+      </View>
+      
 
       <TouchableOpacity
         onPress={changeAfterFinish}
@@ -110,13 +164,13 @@ export const Player = ({audioBase64}: {audioBase64: string}) => {
       >
         {
           afterFinish === "repeat" &&
-          <MaterialIcons name="repeat-one" size={24} color="black" />
+          <MaterialIcons name="repeat-one" size={24} color="white" />
           
           || afterFinish === "nextTrack" && 
-          <MaterialIcons name="repeat" size={24} color="black" />
+          <MaterialIcons name="repeat" size={24} color="white" />
 
           || afterFinish === "randomTrack" &&
-          <FontAwesome name="random" size={24} color="black" />
+          <FontAwesome name="random" size={24} color="white" />
         }
         
       </TouchableOpacity>

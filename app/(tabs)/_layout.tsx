@@ -1,29 +1,11 @@
-import { Platform } from "react-native";
-import { Tabs } from "expo-router";
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Provider } from 'react-redux'
+import { store } from '@/store';
+import { StacksRoot } from "@/components/StacksRoot";
 
 export default function RootLayout() {
   return (
-    <Tabs screenOptions={{
-      tabBarPosition: Platform.OS === "web" ? "left" : "bottom",
-      tabBarActiveTintColor: 'blue', 
-      headerShown: false,
-    }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-          tabBarIcon: () => <FontAwesome name="home" size={24} color="black" />
-        }}
-      />
-      <Tabs.Screen
-        name="saveTrack"
-        options={{href: null}}
-      />
-      <Tabs.Screen
-        name="[trackId]"
-        options={{href: null}}
-      />
-    </Tabs>
+    <Provider store={store}>
+      <StacksRoot />
+    </Provider>
   )
 }
