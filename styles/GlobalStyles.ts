@@ -66,15 +66,13 @@ const styles = StyleSheet.create({
   },
 
   modalView: {
-    marginTop: 'auto',
-    marginBottom: 50,
-    alignItems: 'flex-start', 
-    alignSelf: 'center', 
-    width: '75%', 
     borderRadius: 15,
   },
   lightThemeModalView: {
     backgroundColor: 'lightgray'
+  },
+  darkThemeModalView: {
+    backgroundColor: 'gray'
   }
 })
 

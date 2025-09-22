@@ -1,10 +1,11 @@
-import { View, Text, Image, ActivityIndicator } from "react-native";
+import { View, Text, Image } from "react-native";
 import { Link, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { BlurView } from "expo-blur";
 import { useCallback, useState } from "react";
 import { getTrackById } from "@/utils/getTrackById";
 import { Player } from "@/components/Player";
 import { Track } from "@/types/Track";
+import { LoadingIndicator } from "@/components/LoadingIndicator";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import globalStyles from '@/styles/GlobalStyles'
 
@@ -29,11 +30,7 @@ const TrackScreen = () => {
     }, [trackId])
   )
 
-  if (loading || !track) return (
-    <View style={[globalStyles.blurContainer, {flex: 1, alignSelf: 'center', justifyContent: 'center'}]}>
-      <ActivityIndicator size={36}/>
-    </View>
-  )
+  if (loading || !track) return <LoadingIndicator />
 
   return (
     <View style={globalStyles.background}>

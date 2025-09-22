@@ -1,7 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-export interface SessionState {colorScheme: "light"|"dark"}
-const initialState: SessionState = {colorScheme: "dark"}
+export interface SessionState {
+  colorScheme: "light"|"dark";
+  cachedColorScheme: "light"|"dark"|"system"; // colorScheme stored in app cache
+}
+const initialState: SessionState = {
+  colorScheme: "dark",
+  cachedColorScheme: "system"
+}
 
 interface ChangeStatePayload {
   fieldName: keyof SessionState; 
@@ -16,9 +22,6 @@ export const sessionSlice = createSlice({
       const { fieldName, fieldValue } = action.payload
       state[fieldName] = fieldValue
     }
-  },
-  extraReducers: (builder) => {
-    builder
   }
 })
 

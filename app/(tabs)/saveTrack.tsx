@@ -7,6 +7,8 @@ import { pickImage } from '@/utils/pickImage';
 import { ImageInfo } from '@/types/ImageInfo';
 import { saveTrackToFileSystem } from '@/utils/saveTrackToFileSystem';
 import { readAsStringAsync, EncodingType } from 'expo-file-system/legacy';
+import { getThemeStyle } from '@/utils/getThemeStyle';
+import { useAppSelector } from '@/store';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import globalStyles from '@/styles/GlobalStyles'
@@ -17,6 +19,7 @@ const SaveTrack = () => {
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false)
   const { defaultTrackInfo } = useLocalSearchParams(); //provided only when screen used to update file
+  const colorScheme = useAppSelector(state => state.sessions.colorScheme);
   const router = useRouter();
   let audioUri = useRef<string>("");
 
@@ -82,8 +85,12 @@ const SaveTrack = () => {
     }))
   }
 
+  const themeBackgroundStyle = getThemeStyle(colorScheme, globalStyles, "Background")
+  const themeButtonStyle = getThemeStyle(colorScheme, globalStyles, "Button")
+  const themeInputStyle = getThemeStyle(colorScheme, globalStyles, "Input")
+
   return (
-    <View style={{flex: 1}}>
+    <View style={[globalStyles.background, themeBackgroundStyle]}>
       {loading && 
         <BlurView intensity={Platform.OS === "web" ? 10 : 1500} style={[globalStyles.blurContainer, {alignSelf: 'center', justifyContent: 'center'}]}>
           <ActivityIndicator size={36}/>
@@ -94,7 +101,7 @@ const SaveTrack = () => {
         {!tags &&
           <TouchableOpacity
             onPress={pickAndReadAudioFileHandler}
-            style={[globalStyles.button, globalStyles.lightThemeButton, {flexDirection: 'row', alignItems: 'center'}]}
+            style={[globalStyles.button, themeButtonStyle, {flexDirection: 'row', alignItems: 'center'}]}
           >
             <FontAwesome6 name="file-audio" size={24} color="white"/>
             <Text style={{color: 'white', marginLeft: 10}}>Выбрать и прочитать аудио файл</Text>
@@ -128,24 +135,24 @@ const SaveTrack = () => {
               placeholder="Название..."
               value={tags.title}
               onChangeText={(e) => setTagsField("title", e)}
-              style={[globalStyles.input, globalStyles.lightThemeInput]}
+              style={[globalStyles.input, themeInputStyle]}
             />
             <TextInput 
               placeholder="Исполнитель..."
               value={tags.artist}
               onChangeText={(e) => setTagsField("artist", e)}
-              style={[globalStyles.input, globalStyles.lightThemeInput]}
+              style={[globalStyles.input, themeInputStyle]}
             />
             <TextInput 
               placeholder="Альбом..."
               value={tags.album}
               onChangeText={(e) => setTagsField("album", e)}
-              style={[globalStyles.input, globalStyles.lightThemeInput]}
+              style={[globalStyles.input, themeInputStyle]}
             />
             
             <TouchableOpacity
               onPress={saveTrackToFileSystemHandler}
-              style={[globalStyles.button, globalStyles.lightThemeButton, {marginTop: 15}]}
+              style={[globalStyles.button, themeButtonStyle, {marginTop: 15}]}
             ><Text style={{color: 'white'}}>Сохранить трэк</Text></TouchableOpacity>
           </View>
         )}
