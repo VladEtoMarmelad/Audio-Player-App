@@ -11,6 +11,7 @@ import { getThemeStyle } from '@/utils/getThemeStyle';
 import { File, Paths } from 'expo-file-system';
 import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import globalStyles from '@/styles/GlobalStyles'
 
 global.Buffer = Buffer;
@@ -119,15 +120,27 @@ export default function Index() {
       </Modal>
 
       <View style={{justifyContent: 'center', alignItems: 'flex-start', marginHorizontal: 15}}>
-        <Link
-          href="/saveTrack"
-          style={{backgroundColor: 'darkgray', borderRadius: 15, width: 125, height: 70, marginTop: 50, padding: 10}}
-        >
-          <View>
-            <Text style={{fontSize: 24, fontWeight: 'bold'}}>+</Text>
-            <Text style={{fontSize: 12, fontWeight: 'bold'}}>Добавить трэк</Text>
-          </View>
-        </Link>
+        <View style={{flexDirection: 'row', marginTop: 50}}>
+          <Link
+            href="/saveTrack"
+            style={{backgroundColor: 'darkgray', borderRadius: 15, width: 125, height: 70, padding: 10}}
+          >
+            <View>
+              <Text style={{fontSize: 24, fontWeight: 'bold'}}>+</Text>
+              <Text style={{fontSize: 12, fontWeight: 'bold'}}>Добавить трэк</Text>
+            </View>
+          </Link>
+
+          <Link
+            href="/playlists"
+            style={{backgroundColor: 'darkgray', borderRadius: 15, width: 125, height: 70, padding: 10, marginLeft: 5}}
+          >
+            <View>
+              <MaterialCommunityIcons name="playlist-music" size={24} color="black" />
+              <Text style={{fontSize: 12, fontWeight: 'bold'}}>Плэйлисты</Text>
+            </View>
+          </Link>
+        </View>
         
         <FlatList 
           data={tracks}

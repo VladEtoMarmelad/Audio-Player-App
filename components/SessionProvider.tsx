@@ -1,9 +1,10 @@
 import { View } from "react-native"
-import { File, Paths } from 'expo-file-system';
+import { Directory, File, Paths } from 'expo-file-system';
 import { useColorScheme } from "react-native";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { changeSessionState } from "@/features/sessionSlice";
 import { useEffect } from "react";
+import { ensureDirectoriesExist } from "@/utils/ensureDirectoriesExist";
 
 interface ColorSchemeInfo {
   colorScheme: "light"|"dark";
@@ -13,15 +14,6 @@ interface ColorSchemeInfo {
 const getColorSchema = (systemColorScheme: "light"|"dark"): ColorSchemeInfo => {
   try {
     const sessionInfoFile = new File(Paths.cache, "sessionInfo.txt")
-    const sessionInfoFileInfo = sessionInfoFile.info()
-
-    if (!sessionInfoFileInfo.exists) {
-      sessionInfoFile.create()
-      sessionInfoFile.write(JSON.stringify({
-        colorScheme: "system"
-      }))
-    }
-
     const sessionInfo = JSON.parse(sessionInfoFile.textSync())
     if (sessionInfo.colorScheme==="system") {
       return {
@@ -49,6 +41,7 @@ export const SessionProvider = ({children}: any) => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
+    ensureDirectoriesExist()
     const colorSchemeInfo = getColorSchema(systemColorScheme ?? "dark")
     dispatch(changeSessionState({fieldName: "colorScheme", fieldValue: colorSchemeInfo.colorScheme}))
     dispatch(changeSessionState({fieldName: "cachedColorScheme", fieldValue: colorSchemeInfo.cachedColorScheme}))

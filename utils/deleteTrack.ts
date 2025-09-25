@@ -1,5 +1,6 @@
 import { documentDirectory, deleteAsync } from 'expo-file-system/legacy';
 
+//this function will be deleted when fully replaced with deleteFileFromDocumentDir function 
 export const deleteTrackFromFileSystem = async (trackId: string): Promise<void> => {
   if (trackId!=="") { //verifying to not delete whole directory
     const tracksDirectory = documentDirectory + "tracks"
