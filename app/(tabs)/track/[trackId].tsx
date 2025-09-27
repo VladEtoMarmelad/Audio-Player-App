@@ -1,5 +1,5 @@
 import { View, Text, Image } from "react-native";
-import { Link, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { BlurView } from "expo-blur";
 import { useCallback, useState } from "react";
 import { getTrackById } from "@/utils/getTrackById";
@@ -17,17 +17,14 @@ const TrackScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      const getAndUseTrack = async () => {
-        setTrack(await getTrackById(trackId))
-        setLoading(false)
-      }
-      getAndUseTrack()
+      setTrack(getTrackById(trackId))
+      setLoading(false)
 
       return () => {
         setTrack(null)
         setLoading(true)
       }
-    }, [trackId])
+    }, [])
   )
 
   if (loading || !track) return <LoadingIndicator />
@@ -45,13 +42,6 @@ const TrackScreen = () => {
         intensity={1000}
         style={[globalStyles.background, {alignItems: 'center', justifyContent: 'center'}]}
       >
-        <Link
-          href="/"
-          style={{position: 'absolute', top: 15, left: 15}}
-        >
-          <MaterialIcons name="chevron-left" size={36} color="white" />
-        </Link>
-
         <View>
           {track.image ? 
             <Image

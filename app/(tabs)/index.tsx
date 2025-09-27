@@ -1,7 +1,6 @@
 import { Text, View, FlatList, Image, Modal, TouchableOpacity } from 'react-native';
 import { Buffer } from 'buffer';
 import { getAllTracks } from '@/utils/getAllTracks';
-import { deleteTrackFromFileSystem } from '@/utils/deleteTrack';
 import { Link, useFocusEffect, useRouter } from 'expo-router';
 import { useState, useCallback } from 'react';
 import { Track } from '@/types/Track';
@@ -9,6 +8,7 @@ import { useAppSelector, useAppDispatch } from '@/store';
 import { changeSessionState } from '@/features/sessionSlice';
 import { getThemeStyle } from '@/utils/getThemeStyle';
 import { File, Paths } from 'expo-file-system';
+import { deleteFileFromDocumentDir } from '@/utils/deleteFileFromDocumentDir';
 import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -38,7 +38,7 @@ export default function Index() {
   )
 
   const deleteTrackHandler = (): void => {
-    deleteTrackFromFileSystem(selectedTrack.id)
+    deleteFileFromDocumentDir("tracks", selectedTrack.id)
     setTracks((prevTracks: any) => prevTracks.filter((track: any) => track.title!==selectedTrack.title))
     setShowDeleteModal(false)
   }
@@ -148,7 +148,7 @@ export default function Index() {
           renderItem={({item: track}) => 
             <Link 
               href={{
-                pathname: "/[trackId]",
+                pathname: "/track/[trackId]",
                 params: {trackId: track.id ?? track.title}
               }}
               style={{marginTop: 15}}

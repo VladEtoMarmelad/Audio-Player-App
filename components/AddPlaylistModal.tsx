@@ -2,8 +2,9 @@ import { getThemeStyle } from "@/utils/getThemeStyle"
 import { View, Modal, TextInput, TouchableOpacity, Text } from "react-native"
 import { useAppSelector } from "@/store"
 import { saveFileToDocumentDir } from "@/utils/saveFileToDocumentDir";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "expo-router";
+import { ImagePicker } from "./ImagePicker";
 import globalStyles from "@/styles/GlobalStyles"
 
 interface AddPlaylistModalProps {
@@ -12,15 +13,25 @@ interface AddPlaylistModalProps {
 }
 
 export const AddPlaylistModal = ({showAddModal, setShowAddModal}: AddPlaylistModalProps) => {
+  const imageUri = useRef<string|null>("")
+  const [title, setTitle] = useState<string>("")
+
   const router = useRouter()
   const colorScheme = useAppSelector(state => state.sessions.colorScheme)
-  const [title, setTitle] = useState<string>("")
 
   const addPlaylistHandler = () => {
     setShowAddModal(!showAddModal)
+
+    console.log("newPlaylistObject:", JSON.stringify({
+      title: title,
+      imageUri: imageUri.current ?? "",
+
+      tracksUri: []
+    }, null, 2))
+    
     saveFileToDocumentDir("playlists", {
       title: title,
-      imageUri: "",
+      imageUri: imageUri.current ?? "",
 
       tracksUri: []
     })
@@ -39,6 +50,9 @@ export const AddPlaylistModal = ({showAddModal, setShowAddModal}: AddPlaylistMod
       onRequestClose={() => setShowAddModal(!showAddModal)}
     >
       <View style={[globalStyles.modalView, themeModalViewStyle, {alignSelf: 'center', width: '75%', marginTop: 'auto', marginBottom: 15, padding: 15}]}>
+
+        <ImagePicker setImage={(value: string|null) => imageUri.current = value} />
+
         <TextInput
           value={title}
           onChangeText={(e) => setTitle(e)}

@@ -6,8 +6,10 @@ export const getPlaylistById = (id: string): Playlist|null => {
     const playlistFile = new File(Paths.document, "playlists", `${id}.txt`)
     let playlist = JSON.parse(playlistFile.textSync())
 
-    //const image = new File(playlist.imageUri)
-    //playlist.image = image.base64Sync()
+    if (playlist.imageUri!=="") {
+      const image = new File(playlist.imageUri)
+      playlist.image = image.base64Sync()
+    }
 
     return playlist
   } catch (error: unknown) {

@@ -10,8 +10,10 @@ export const getAllPlaylists = (): Playlist[] => {
     const playlistFile = new File(playlist.uri)
     let playlistObject = JSON.parse(playlistFile.textSync())
 
-    // const image = new File(playlistObject.imageUri)
-    // playlistObject.image = image.base64Sync()
+    if (playlistObject.imageUri!=="") {
+      const image = new File(playlistObject.imageUri)
+      playlistObject.image = image.base64Sync()
+    }
 
     playlists.push(playlistObject)
   })
