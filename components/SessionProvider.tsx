@@ -1,5 +1,5 @@
 import { View } from "react-native"
-import { Directory, File, Paths } from 'expo-file-system';
+import { File, Paths } from 'expo-file-system';
 import { useColorScheme } from "react-native";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { changeSessionState } from "@/features/sessionSlice";

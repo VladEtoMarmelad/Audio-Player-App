@@ -44,7 +44,7 @@ const Playlists = () => {
             <Link 
               href={{
                 pathname: "/playlist/[playlistId]",
-                params: {trackId: playlist.id ?? playlist.title}
+                params: {playlistId: playlist.id ?? playlist.title}
               }}
               style={{marginTop: 15}}
             >

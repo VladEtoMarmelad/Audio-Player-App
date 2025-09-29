@@ -2,8 +2,8 @@ import { View, TouchableOpacity, Text } from "react-native"
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useState, useRef, useEffect } from "react";
-import { documentDirectory, readDirectoryAsync } from 'expo-file-system/legacy';
 import { secondsToTime } from "@/utils/secondsToTime";
+import { getIDsFromDocumentDir } from "@/utils/getIDsFromDocumentDir";
 import Slider from "@react-native-community/slider";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -23,11 +23,7 @@ export const Player = ({audioBase64}: {audioBase64: string}) => {
 
   useFocusEffect(
     useCallback(() => {
-      const getAndUseAllTracksIDs = async (): Promise<void> => {
-        const tracksDirectory = documentDirectory + "tracks"
-        allTracksIDs.current = await readDirectoryAsync(tracksDirectory) 
-      } 
-      getAndUseAllTracksIDs()
+      allTracksIDs.current = getIDsFromDocumentDir("tracks")
 
       setAfterFinish(initialAfterFinish ?? "repeat") //using afterFinish that was choosed in prev track
       
@@ -47,7 +43,7 @@ export const Player = ({audioBase64}: {audioBase64: string}) => {
     }
 
     router.push({
-      pathname: "/[trackId]",
+      pathname: "/track/[trackId]",
       params: {
         trackId: getNextTrackId(),
         initialAfterFinish: afterFinish
@@ -67,7 +63,7 @@ export const Player = ({audioBase64}: {audioBase64: string}) => {
     }
 
     router.push({
-      pathname: "/[trackId]",
+      pathname: "/track/[trackId]",
       params: {
         trackId: getPreviousTrackId(),
         initialAfterFinish: afterFinish
@@ -86,7 +82,7 @@ export const Player = ({audioBase64}: {audioBase64: string}) => {
         const randomTrackId: string = otherTracksIDs[Math.floor(Math.random() * otherTracksIDs.length)]
         console.log("randomTrackId:", randomTrackId)
         router.push({
-          pathname: "/[trackId]",
+          pathname: "/track/[trackId]",
           params: {trackId: randomTrackId}
         })
       }
@@ -102,8 +98,6 @@ export const Player = ({audioBase64}: {audioBase64: string}) => {
       setAfterFinish("repeat")
     }
   }
-
-  console.log("playerStatus:", playerStatus)
 
   return (
     <View>

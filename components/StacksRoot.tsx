@@ -17,6 +17,7 @@ export const StacksRoot = () => {
       screenOptions={{
         animation: "slide_from_bottom",
         headerStyle: themeBackgroundStyle,
+        contentStyle: themeBackgroundStyle,
         headerShadowVisible: false,
         headerTitleStyle: {
           color: colorScheme==="dark" ? 'white' : 'black',
@@ -34,25 +35,31 @@ export const StacksRoot = () => {
         }
       }}
     >
-      <Stack.Screen 
-        name="track/[trackId]"
-        options={{title: ""}}
-      />
-      <Stack.Screen 
-        name="playlist/[playlistId]"
-        options={{title: ""}}
-      />
       <Stack.Screen
         name="index"
+        options={{headerShown: false}}
+      />
+      
+      <Stack.Screen 
+        name="track/[trackId]"
         options={{headerShown: false}}
       />
       <Stack.Screen 
         name="saveTrack"
         options={{title: ""}}
       />
+
       <Stack.Screen 
         name="playlists"
         options={{title: "Плэйлисты"}}
+      />
+      <Stack.Screen 
+        name="playlist/[playlistId]"
+        options={{headerShown: false}}
+      />
+      <Stack.Screen 
+        name="playlist/addTracks"
+        options={{title: "Добавить треки"}}
       />
     </Stack>
   )

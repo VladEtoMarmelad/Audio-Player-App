@@ -1,4 +1,4 @@
-import { TouchableOpacity, View, Modal, Text } from "react-native";
+import { TouchableOpacity, View, Modal, Text, Image } from "react-native";
 import { useAppSelector } from "@/store";
 import { getThemeStyle } from "@/utils/getThemeStyle";
 import { useCallback, useState } from "react";
@@ -45,6 +45,15 @@ const PlaylistScreen = () => {
         <Entypo name="dots-three-vertical" size={24} style={themeTextStyle} />
       </TouchableOpacity>
 
+      <View style={{flex: 1, alignItems: 'center'}}>
+        <Image 
+          source={{uri: `data:image/png;base64,${playlist.image}`}}
+          style={{width: 150, height: 150, marginTop: 100, borderRadius: 15}}
+        />
+        <Text style={{marginTop: 15, fontSize: 18, fontWeight: 'bold', color: 'white'}}>{playlist.title}</Text>
+
+      </View>
+
       <Modal
         animationType="fade"
         transparent={true}
@@ -53,8 +62,14 @@ const PlaylistScreen = () => {
       >
         <View style={[globalStyles.modalView, themeModalViewStyle, {marginTop: 'auto', marginBottom: 50, alignSelf: 'center', width: '75%'}]}>
           <TouchableOpacity
-            onPress={() => {}}
+            onPress={() => router.replace("/playlist/addTracks")}
+            role="link"
             style={{width: '100%', borderTopLeftRadius: 15, borderTopRightRadius: 15, padding: 10, backgroundColor: 'darkgray'}}
+          ><Text style={{fontSize: 16, fontWeight: 'bold'}}>Добавить треки</Text></TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {}}
+            style={{width: '100%', padding: 10, backgroundColor: 'darkgray'}}
           ><Text style={{fontSize: 16, fontWeight: 'bold'}}>Редактировать</Text></TouchableOpacity>
           
           <TouchableOpacity
