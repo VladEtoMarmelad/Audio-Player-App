@@ -5,17 +5,25 @@ import { useAppSelector } from "@/store";
 import { getThemeStyle } from "@/utils/getThemeStyle";
 import { Track } from "@/types/Track";
 import { getTrackById } from "@/utils/getTrackById";
+import { TrackItem } from "./TrackItem";
 import globalStyles from "@/styles/GlobalStyles";
 
 interface TrackCheckboxProps {
   trackId: string;
+  playlistTrackIDs: string[];
   addToSelectedTrackIds: (trackId: string) => void;
   deleteFromSelectedTrackIds: (trackId: string) => void
 }
 
-export const TrackCheckbox = ({trackId, addToSelectedTrackIds, deleteFromSelectedTrackIds}: TrackCheckboxProps) => {
+export const TrackCheckbox = ({trackId, playlistTrackIDs, addToSelectedTrackIds, deleteFromSelectedTrackIds}: TrackCheckboxProps) => {
   const [track, setTrack] = useState<Track|null>(null)
-  const [checked, setChecked] = useState<boolean>(false);
+  const [checked, setChecked] = useState<boolean>(() => {
+    if (playlistTrackIDs.includes(trackId)) {
+      return true
+    } else {
+      return false
+    }
+  });
   const colorScheme = useAppSelector(state => state.sessions.colorScheme)
   const themeTextStyle = getThemeStyle(colorScheme, globalStyles, "Text")
 
@@ -53,16 +61,7 @@ export const TrackCheckbox = ({trackId, addToSelectedTrackIds, deleteFromSelecte
         onPress={() => setChecked(!checked)}
         style={{flexDirection: 'row', alignItems: 'center', width: '100%', marginLeft: 10}}
       >
-        {track.image!=="" && 
-          <Image
-            source={{uri: `data:image/png;base64,${track.image}`}}
-            style={{width: 50, height: 50, borderRadius: 10}}
-          />
-        }
-        <View style={{marginLeft: 10}}>
-          <Text style={themeTextStyle}>{track.title.slice(0, 35)}{track.title.length>35&&"..."}</Text>
-          <Text style={{color: 'gray'}}>{track.artistAndAlbum}</Text>
-        </View>
+        <TrackItem track={track}/>
       </TouchableOpacity>
     </View>
   )

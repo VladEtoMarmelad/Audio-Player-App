@@ -19,12 +19,17 @@ export const Player = ({audioBase64}: {audioBase64: string}) => {
   const searchParams = useLocalSearchParams()
   const trackId = Array.isArray(searchParams.trackId) ? searchParams.trackId[0] : searchParams.trackId
   const initialAfterFinish: any = Array.isArray(searchParams.initialAfterFinish) ? searchParams.initialAfterFinish[0] : searchParams.initialAfterFinish
-  let allTracksIDs = useRef<string[]>([trackId])
+  const playlistTrackIDs: string|undefined = Array.isArray(searchParams.playlistTrackIDs) ? searchParams.playlistTrackIDs[0] : searchParams.playlistTrackIDs
+  let nextTracksIDs = useRef<string[]>([trackId]) //contains IDs of tracks that can be played 
 
   useFocusEffect(
     useCallback(() => {
-      allTracksIDs.current = getIDsFromDocumentDir("tracks")
-
+      if (playlistTrackIDs) {
+        nextTracksIDs.current = JSON.parse(playlistTrackIDs)
+      } else {
+        nextTracksIDs.current = getIDsFromDocumentDir("tracks")
+      }
+      
       setAfterFinish(initialAfterFinish ?? "repeat") //using afterFinish that was choosed in prev track
       
       player.play()
@@ -33,40 +38,42 @@ export const Player = ({audioBase64}: {audioBase64: string}) => {
   
   const redirectToNextTrack = () => {
     const getNextTrackId = (): string => {
-      const currentTrackIndex = allTracksIDs.current.indexOf(trackId)
+      const currentTrackIndex = nextTracksIDs.current.indexOf(trackId)
 
-      if (currentTrackIndex===allTracksIDs.current.length-1) { // if last track 
-        return allTracksIDs.current[0] // first track
+      if (currentTrackIndex===nextTracksIDs.current.length-1) { // if last track 
+        return nextTracksIDs.current[0] // first track
       } else {
-        return allTracksIDs.current[currentTrackIndex+1] // next track
+        return nextTracksIDs.current[currentTrackIndex+1] // next track
       }
     }
 
-    router.push({
+    router.replace({
       pathname: "/track/[trackId]",
       params: {
         trackId: getNextTrackId(),
-        initialAfterFinish: afterFinish
+        initialAfterFinish: afterFinish,
+        playlistTrackIDs
       }
     })
   }
 
   const redirectToPreviousTrack = () => {
     const getPreviousTrackId = (): string => {
-      const currentTrackIndex = allTracksIDs.current.indexOf(trackId)
+      const currentTrackIndex = nextTracksIDs.current.indexOf(trackId)
 
       if (currentTrackIndex===0) { // if first track 
-        return allTracksIDs.current[allTracksIDs.current.length-1] // last track
+        return nextTracksIDs.current[nextTracksIDs.current.length-1] // last track
       } else {
-        return allTracksIDs.current[currentTrackIndex-1] // prev track
+        return nextTracksIDs.current[currentTrackIndex-1] // prev track
       }
     }
 
-    router.push({
+    router.replace({
       pathname: "/track/[trackId]",
       params: {
         trackId: getPreviousTrackId(),
-        initialAfterFinish: afterFinish
+        initialAfterFinish: afterFinish,
+        playlistTrackIDs
       }
     })
   }
@@ -78,12 +85,16 @@ export const Player = ({audioBase64}: {audioBase64: string}) => {
       } else if (afterFinish==="nextTrack") {
         redirectToNextTrack()
       } else {
-        const otherTracksIDs: string[] = allTracksIDs.current.filter((id: string) => id!==trackId) // ids of all tracks except current track
+        const otherTracksIDs: string[] = nextTracksIDs.current.filter((id: string) => id!==trackId) // ids of all tracks except current track
         const randomTrackId: string = otherTracksIDs[Math.floor(Math.random() * otherTracksIDs.length)]
         console.log("randomTrackId:", randomTrackId)
-        router.push({
+        router.replace({
           pathname: "/track/[trackId]",
-          params: {trackId: randomTrackId}
+          params: {
+            trackId: randomTrackId,
+            initialAfterFinish: afterFinish,
+            playlistTrackIDs
+          }
         })
       }
     }
@@ -128,7 +139,7 @@ export const Player = ({audioBase64}: {audioBase64: string}) => {
           onPress={redirectToPreviousTrack}
           style={{alignSelf: 'center'}}
         >
-          <MaterialIcons name="skip-previous" size={36} color={allTracksIDs.current.length>=0 ? "white" : "gray"} />
+          <MaterialIcons name="skip-previous" size={36} color={nextTracksIDs.current.length>=0 ? "white" : "gray"} />
         </TouchableOpacity>
 
         {playerStatus.timeControlStatus === "playing" ?
@@ -147,7 +158,7 @@ export const Player = ({audioBase64}: {audioBase64: string}) => {
           onPress={redirectToNextTrack}
           style={{alignSelf: 'center'}}
         >
-          <MaterialIcons name="skip-next" size={36} color={allTracksIDs.current.length>=0 ? "white" : "gray"} />
+          <MaterialIcons name="skip-next" size={36} color={nextTracksIDs.current.length>=0 ? "white" : "gray"} />
         </TouchableOpacity>
       </View>
       

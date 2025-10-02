@@ -33,7 +33,7 @@ export const AddPlaylistModal = ({showAddModal, setShowAddModal}: AddPlaylistMod
       title: title,
       imageUri: imageUri.current ?? "",
 
-      tracksUri: []
+      tracksIDs: []
     })
     router.replace("/playlists")    
   }

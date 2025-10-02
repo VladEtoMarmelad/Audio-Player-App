@@ -1,4 +1,4 @@
-import { Text, View, FlatList, Image, Modal, TouchableOpacity } from 'react-native';
+import { Text, View, FlatList, Modal, TouchableOpacity } from 'react-native';
 import { Buffer } from 'buffer';
 import { getAllTracks } from '@/utils/getAllTracks';
 import { Link, useFocusEffect, useRouter } from 'expo-router';
@@ -13,6 +13,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import globalStyles from '@/styles/GlobalStyles'
+import { TrackItem } from '@/components/TrackItem';
 
 global.Buffer = Buffer;
 
@@ -43,7 +44,7 @@ export default function Index() {
     setShowDeleteModal(false)
   }
 
-  const redirectToTrackUpdateScreen = async (): Promise<void> => {
+  const redirectToTrackUpdateScreen = (): void => {
     const track = tracks?.find((track: any) => track.title===selectedTrack.title)
 
     setShowModal(false)
@@ -79,7 +80,6 @@ export default function Index() {
 
   const themeBackgroundStyle = getThemeStyle(colorScheme, globalStyles, "Background")
   const themeModalViewStyle = getThemeStyle(colorScheme, globalStyles, "ModalView")
-  const themeTextStyle = getThemeStyle(colorScheme, globalStyles, "Text")
 
   return (
     <View style={[globalStyles.background, themeBackgroundStyle]}>
@@ -153,35 +153,11 @@ export default function Index() {
               }}
               style={{marginTop: 15}}
             >
-              <View style={{flexDirection: 'row', alignItems: 'center', width: '100%'}}>
-                {track.image!=="" && 
-                  <Image
-                    source={{uri: `data:image/png;base64,${track.image}`}}
-                    style={{width: 50, height: 50, borderRadius: 10}}
-                  />
-                }
-                <View style={{marginLeft: 10}}>
-                  <Text style={themeTextStyle}>{track.title.slice(0, 40)}{track.title.length>40&&"..."}</Text>
-                  <Text style={{color: 'gray'}}>{track.artistAndAlbum}</Text>
-                </View>
-
-                <TouchableOpacity 
-                  onPress={() => {
-                    setShowModal(true);
-                    setSelectedTrack({
-                      id: track.id,
-                      title: track.title
-                    })
-                  }}
-                  style={{marginLeft: 'auto'}}
-                >
-                  <Entypo 
-                    name="dots-three-vertical" 
-                    size={18} 
-                    color="gray"
-                  />
-                </TouchableOpacity>
-              </View>
+              <TrackItem 
+                track={track} 
+                setShowModal={setShowModal} 
+                setSelectedTrack={setSelectedTrack}
+              />
             </Link>
           }
         />
